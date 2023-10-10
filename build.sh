@@ -64,7 +64,22 @@ function prepare_rootfs()
     mkdir -p $rootfs
     mount -o loop $rootimg $rootfs
     bsdtar -xpf $rootpack -C $rootfs
-    sync
+}
+
+function config_rootfs()
+{
+    chrootdo="arch-chroot $rootfs qemu-aarch64-static /bin/bash -c"
+    cp -p /usr/bin/qemu-aarch64-static $rootfs/bin/qemu-aarch64-static
+
+    $chrootdo "pacman-key --init"
+    $chrootdo "pacman-key --populate archlinuxarm"
+
+    $chrootdo "pacman --noconfirm -Syyu"
+    $chrootdo "pacman --noconfirm -S archlinux-keyring"
+    $chrootdo "pacman --noconfirm -S networkmanager"
+    $chrootdo "pacman --noconfirm -R linux linux-firmware"
+
+    rm $rootfs/bin/qemu-aarch64-static
 }
 
 function pack_rootfs()
@@ -87,12 +102,13 @@ function generate_checksum()
 
 set -ev
 mkdir -p build
-
 prepare_rootfs
-build_lk2nd
-build_linux
 
-make_boot
-make_image
+# build_lk2nd
+# build_linux
+# make_boot
+# make_image
+
+config_rootfs
 pack_rootfs
-generate_checksum
+# generate_checksum
