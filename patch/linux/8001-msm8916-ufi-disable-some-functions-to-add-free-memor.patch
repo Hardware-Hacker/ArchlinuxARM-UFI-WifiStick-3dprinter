@@ -1,0 +1,56 @@
+From cbf8c32c7cd41f4c19e20f605abd87146565b50f Mon Sep 17 00:00:00 2001
+From: fashion <fashion@openbfdev.com>
+Date: Mon, 6 Jan 2025 01:56:40 +0800
+Subject: [PATCH] msm8916 ufi: disable some functions to add free memory
+
+Signed-off-by: fashion <fashion@openbfdev.com>
+---
+ arch/arm64/boot/dts/qcom/msm8916-ufi.dtsi | 25 -----------------------
+ 1 file changed, 25 deletions(-)
+
+diff --git a/arch/arm64/boot/dts/qcom/msm8916-ufi.dtsi b/arch/arm64/boot/dts/qcom/msm8916-ufi.dtsi
+index 0a9fef8a94cf..0a2b71ec5e02 100644
+--- a/arch/arm64/boot/dts/qcom/msm8916-ufi.dtsi
++++ b/arch/arm64/boot/dts/qcom/msm8916-ufi.dtsi
+@@ -78,19 +78,6 @@ &gcc {
+ 	clocks = <&xo_board>, <&sleep_clk>, <0>, <0>, <0>, <0>, <0>;
+ };
+ 
+-&mba_mem {
+-	status = "okay";
+-};
+-
+-&mpss {
+-	status = "okay";
+-};
+-
+-&mpss_mem {
+-	reg = <0x0 0x86800000 0x0 0x5500000>;
+-	status = "okay";
+-};
+-
+ &pm8916_usbin {
+ 	status = "okay";
+ };
+@@ -111,18 +98,6 @@ &usb_hs_phy {
+ 	extcon = <&pm8916_usbin>;
+ };
+ 
+-&gpu {
+-	status = "okay";
+-};
+-
+-&venus {
+-	status = "okay";
+-};
+-
+-&venus_mem {
+-	status = "okay";
+-};
+-
+ &wcnss {
+ 	status = "okay";
+ };
+-- 
+2.43.0
+
