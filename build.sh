@@ -79,7 +79,7 @@ function prepare_rootfs()
 function install_aur_package()
 {
     local name=$1
-    local url="https://aur.archlinux.org/$name.git"
+    local url="https://aur.archlinux.org/$name-git.git"
     $chlivedo "cd /home/alarm && su alarm -c \"git clone $url $name\""
     $chlivedo "cd /home/alarm/$name && su alarm -c \"makepkg -s\""
     $chlivedo "cd /home/alarm/$name && pacstrap -cGMU /mnt ./*.tar.zst"
