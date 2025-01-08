@@ -77,3 +77,6 @@ jobs:
         with:
           keep_latest: 1
           delete_tags: true
+      - name: debug
+        if: ${{ failure() }}
+        uses: csexton/debugger-action@master
