@@ -79,16 +79,27 @@ function prepare_rootfs()
 function install_aur_package()
 {
     local name=$1
-    local url="https://aur.archlinux.org/$name-git.git"
-    $chlivedo "cd /home/alarm && su alarm -c \"git clone $url $name\""
-    $chlivedo "cd /home/alarm/$name && su alarm -c \"makepkg -s\""
-    $chlivedo "cd /home/alarm/$name && pacstrap -cGMU /mnt ./*.tar.zst"
+    local project_url="https://aur.archlinux.org/$name.git"
+    local pkgdeps=$($chlivealarmdo "cd $name && source PKGBUILD && echo \${depends[@]} \${makedepends[@]}")
+    local pkgver=$($chlivealarmdo "cd $name && source PKGBUILD && echo \${pkgver}-\${pkgrel}")
+    local pkgarch=$($chlivealarmdo "cd $name && source PKGBUILD && echo \${arch}")
+    
+    for dep in $pkgdeps; do
+        if ! $chlivedo "pacman -Si $dep >/dev/null 2>&1"; then
+            install_aur_package $dep
+        fi
+    done
+        
+    $chlivealarmdo "git clone $project_url $name"
+    $chlivealarmdo "cd $name && makepkg -s --noconfirm"
+    $chlivealarmdo "cd $name && pacstrap -cGMU /mnt $name-$pkgver-$pkgarch.pkg.tar.zst"
 }
 
 function config_rootfs()
 {
     chlivedo="arch-chroot $livecd qemu-aarch64-static /bin/bash -c"
     chrootdo="arch-chroot $rootfs qemu-aarch64-static /bin/bash -c"
+    chlivealarmdo="arch-chroot $livecd qemu-aarch64-static /bin/bash -c cd /home/alarm && su alarm -c"
 
     cp -p /usr/bin/qemu-aarch64-static $livecd/bin/qemu-aarch64-static
 
