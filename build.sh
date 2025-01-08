@@ -76,14 +76,21 @@ function prepare_rootfs()
     mount $rootimg $rootfs
 }
 
+function chlivealarmdo()
+{
+    chalarm="cd /home/alarm && su alarm -c"
+    command="$chalarm $1"
+    $chlivedo "$command"
+}
+
 function install_aur_package()
 {
     echo "install $name start"
     local name=$1
     local project_url="https://aur.archlinux.org/$name.git"
-    local pkgdeps=$($chlivealarmdo "cd $name && source PKGBUILD && echo \${depends[@]} \${makedepends[@]}")
-    local pkgver=$($chlivealarmdo "cd $name && source PKGBUILD && echo \${pkgver}-\${pkgrel}")
-    local pkgarch=$($chlivealarmdo "cd $name && source PKGBUILD && echo \${arch}")
+    local pkgdeps=$(chlivealarmdo "cd $name && source PKGBUILD && echo \${depends[@]} \${makedepends[@]}")
+    local pkgver=$(chlivealarmdo "cd $name && source PKGBUILD && echo \${pkgver}-\${pkgrel}")
+    local pkgarch=$(chlivealarmdo "cd $name && source PKGBUILD && echo \${arch}")
     
     for dep in $pkgdeps; do
         if ! $chlivedo "pacman -Si $dep >/dev/null 2>&1"; then
@@ -91,9 +98,9 @@ function install_aur_package()
         fi
     done
         
-    $chlivealarmdo "git clone $project_url $name"
-    $chlivealarmdo "cd $name && makepkg -s --noconfirm"
-    $chlivealarmdo "cd $name && pacstrap -cGMU /mnt $name-$pkgver-$pkgarch.pkg.tar.zst"
+    chlivealarmdo "git clone $project_url $name"
+    chlivealarmdo "cd $name && makepkg -s --noconfirm"
+    chlivealarmdo "cd $name && pacstrap -cGMU /mnt $name-$pkgver-$pkgarch.pkg.tar.zst"
 
     echo "install $name finished"
 }
@@ -102,7 +109,6 @@ function config_rootfs()
 {
     chlivedo="arch-chroot $livecd qemu-aarch64-static /bin/bash -c"
     chrootdo="arch-chroot $rootfs qemu-aarch64-static /bin/bash -c"
-    chlivealarmdo="arch-chroot $livecd qemu-aarch64-static /bin/bash -c cd /home/alarm && su alarm -c"
 
     cp -p /usr/bin/qemu-aarch64-static $livecd/bin/qemu-aarch64-static
 
