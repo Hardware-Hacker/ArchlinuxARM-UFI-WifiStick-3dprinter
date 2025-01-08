@@ -88,6 +88,9 @@ function install_aur_package()
     echo "install $name start"
     local name=$1
     local project_url="https://aur.archlinux.org/$name.git"
+
+    chlivealarmdo "git clone $project_url $name"
+
     local pkgdeps=$(chlivealarmdo "cd $name && source PKGBUILD && echo \${depends[@]} \${makedepends[@]}")
     local pkgver=$(chlivealarmdo "cd $name && source PKGBUILD && echo \${pkgver}-\${pkgrel}")
     local pkgarch=$(chlivealarmdo "cd $name && source PKGBUILD && echo \${arch}")
@@ -98,7 +101,7 @@ function install_aur_package()
         fi
     done
         
-    chlivealarmdo "git clone $project_url $name"
+
     chlivealarmdo "cd $name && makepkg -s --noconfirm"
     chlivealarmdo "cd $name && pacstrap -cGMU /mnt $name-$pkgver-$pkgarch.pkg.tar.zst"
 
