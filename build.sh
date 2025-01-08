@@ -79,7 +79,7 @@ function prepare_rootfs()
 function chlivealarmdo()
 {
     chalarm="cd /home/alarm && su alarm -c"
-    command="$chalarm $1"
+    command="$chalarm \"$1\""
     $chlivedo "$command"
 }
 
