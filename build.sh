@@ -78,6 +78,7 @@ function prepare_rootfs()
 
 function install_aur_package()
 {
+    echo "install $name start"
     local name=$1
     local project_url="https://aur.archlinux.org/$name.git"
     local pkgdeps=$($chlivealarmdo "cd $name && source PKGBUILD && echo \${depends[@]} \${makedepends[@]}")
@@ -93,6 +94,8 @@ function install_aur_package()
     $chlivealarmdo "git clone $project_url $name"
     $chlivealarmdo "cd $name && makepkg -s --noconfirm"
     $chlivealarmdo "cd $name && pacstrap -cGMU /mnt $name-$pkgver-$pkgarch.pkg.tar.zst"
+
+    echo "install $name finished"
 }
 
 function config_rootfs()
