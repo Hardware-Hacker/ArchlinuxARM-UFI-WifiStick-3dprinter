@@ -78,8 +78,10 @@ function prepare_rootfs()
 
 function chlivealarmdo()
 {
-    chalarm="cd /home/alarm && su alarm -c"
-    command="$chalarm \"$1\""
+    path=$1
+    chalarm="cd /home/alarm/$path && su alarm -c"
+    command="$chalarm '$2'"
+
     $chlivedo "$command"
 }
 
@@ -91,11 +93,13 @@ function install_aur_compiledeps_package()
 
     chlivealarmdo "git clone $project_url $name"
 
-    local runtimedeps=$(chlivealarmdo "cd $name && source PKGBUILD && echo \${depends[@]}")
-    local compiledeps=$(chlivealarmdo "cd $name && source PKGBUILD && echo \${makedepends[@]}")
+    local runtimedeps=$(chlivealarmdo "$name" 'source PKGBUILD && echo ${depends[@]}')
+    local compiledeps=$(chlivealarmdo "$name" 'source PKGBUILD && echo ${makedepends[@]}')
 
-    local pkgver=$(chlivealarmdo "cd $name && source PKGBUILD && echo \${pkgver}-\${pkgrel}")
-    local pkgarch=$(chlivealarmdo "cd $name && source PKGBUILD && echo \${arch}")
+    
+    local pkgver=$(chlivealarmdo "$name" 'source PKGBUILD && echo ${pkgver}-${pkgrel}')
+    local pkgarch=$(chlivealarmdo "$name" 'source PKGBUILD && echo ${arch}')
+
     
     
     for dep in $compiledeps; do
@@ -112,7 +116,7 @@ function install_aur_compiledeps_package()
     done
         
 
-    chlivealarmdo "cd $name && makepkg -si --noconfirm"
+    chlivealarmdo "$name" "makepkg -si --noconfirm"
 
     echo "install compiledeps $name finished" 
 }
@@ -123,14 +127,13 @@ function install_aur_package()
     local name=$1
     local project_url="https://aur.archlinux.org/$name.git"
 
-    chlivealarmdo "git clone $project_url $name"
+    chlivealarmdo "" "git clone $project_url $name"
 
-    local runtimedeps=$(chlivealarmdo "cd $name && source PKGBUILD && echo \${depends[@]}")
-    local compiledeps=$(chlivealarmdo "cd $name && source PKGBUILD && echo \${makedepends[@]}")
+    local runtimedeps=$(chlivealarmdo "$name" 'source PKGBUILD && echo ${depends[@]}')
+    local compiledeps=$(chlivealarmdo "$name" 'source PKGBUILD && echo ${makedepends[@]}')
 
-    local pkgver=$(chlivealarmdo "cd $name && source PKGBUILD && echo \${pkgver}-\${pkgrel}")
-    local pkgarch=$(chlivealarmdo "cd $name && source PKGBUILD && echo \${arch}")
-    
+    local pkgver=$(chlivealarmdo "$name" 'source PKGBUILD && echo ${pkgver}-${pkgrel}')
+    local pkgarch=$(chlivealarmdo "$name" 'source PKGBUILD && echo ${arch}')
     
     for dep in $compiledeps; do
         if ! $chlivedo "pacman -Si $dep >/dev/null 2>&1"; then
@@ -146,8 +149,8 @@ function install_aur_package()
     done
         
 
-    chlivealarmdo "cd $name && makepkg -si --noconfirm"
-    chlivealarmdo "cd $name && pacstrap -cGMU /mnt $name-$pkgver-$pkgarch.pkg.tar.zst"
+    chlivealarmdo $name "makepkg -si --noconfirm"
+    chlivealarmdo "$name" "pacstrap -cGMU /mnt $name-$pkgver-$pkgarch.pkg.tar.zst"
 
     echo "install $name finished"
 }
